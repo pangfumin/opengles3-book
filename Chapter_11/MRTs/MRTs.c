@@ -158,7 +158,7 @@ void DrawGeometry ( ESContext *esContext )
                             0.50f, -0.50f, 0.0f,
                             0.50f,  0.50f, 0.0f,
                          };
-   GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
+//   GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
 
    // Set the viewport
    glViewport ( 0, 0, esContext->width, esContext->height );
