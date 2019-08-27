@@ -49,7 +49,7 @@ typedef struct
    GLuint fbo;
 
    // Texture handle
-   GLuint colorTexId[4];
+   GLuint colorTexId[1];
 
    // Texture size
    GLsizei textureWidth;
@@ -65,12 +65,12 @@ int InitFBO ( ESContext *esContext )
    UserData *userData = esContext->userData;
    int i;
    GLint defaultFramebuffer = 0;
-   const GLenum attachments[4] = 
+   const GLenum attachments[1] = 
    { 
-      GL_COLOR_ATTACHMENT0,
-      GL_COLOR_ATTACHMENT1,
-      GL_COLOR_ATTACHMENT2,
-      GL_COLOR_ATTACHMENT3 
+      GL_COLOR_ATTACHMENT0
+      // GL_COLOR_ATTACHMENT1
+      // GL_COLOR_ATTACHMENT2,
+      // GL_COLOR_ATTACHMENT3 
    };
 
    glGetIntegerv ( GL_FRAMEBUFFER_BINDING, &defaultFramebuffer );
@@ -81,8 +81,8 @@ int InitFBO ( ESContext *esContext )
 
    // Setup four output buffers and attach to fbo
    userData->textureHeight = userData->textureWidth = 400;
-   glGenTextures ( 4, &userData->colorTexId[0] );
-   for (i = 0; i < 4; ++i)
+   glGenTextures ( 1, &userData->colorTexId[0] );
+   for (i = 0; i < 1; ++i)
    {
       glBindTexture ( GL_TEXTURE_2D, userData->colorTexId[i] );
 
@@ -98,7 +98,7 @@ int InitFBO ( ESContext *esContext )
                                GL_TEXTURE_2D, userData->colorTexId[i], 0 );
    }
 
-   glDrawBuffers ( 4, attachments );
+   glDrawBuffers ( 1, attachments );
 
    if ( GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus ( GL_FRAMEBUFFER ) )
    {
@@ -129,22 +129,22 @@ int Init ( ESContext *esContext )
        "#version 300 es                                     \n"
        "precision mediump float;                            \n"
        "layout(location = 0) out vec4 fragData0;            \n"
-       "layout(location = 1) out vec4 fragData1;            \n"
-       "layout(location = 2) out vec4 fragData2;            \n"
-       "layout(location = 3) out vec4 fragData3;            \n"
+      //  "layout(location = 1) out vec4 fragData1;            \n"
+      //  "layout(location = 2) out vec4 fragData2;            \n"
+      //  "layout(location = 3) out vec4 fragData3;            \n"
        "void main()                                         \n"
        "{                                                   \n"
        "  // first buffer will contain red color            \n"
        "  fragData0 = vec4 ( 1, 0, 0, 1 );                  \n"
        "                                                    \n"
-       "  // second buffer will contain green color         \n"
-       "  fragData1 = vec4 ( 0, 1, 0, 1 );                  \n"
-       "                                                    \n"
-       "  // third buffer will contain blue color           \n"
-       "  fragData2 = vec4 ( 0, 0, 1, 1 );                  \n"
-       "                                                    \n"
-       "  // fourth buffer will contain gray color          \n"            
-       "  fragData3 = vec4 ( 0.5, 0.5, 0.5, 1 );            \n"
+      //  "  // second buffer will contain green color         \n"
+      //  "  fragData1 = vec4 ( 0, 1, 0, 1 );                  \n"
+      //  "                                                    \n"
+      //  "  // third buffer will contain blue color           \n"
+      //  "  fragData2 = vec4 ( 0, 0, 1, 1 );                  \n"
+      //  "                                                    \n"
+      //  "  // fourth buffer will contain gray color          \n"            
+      //  "  fragData3 = vec4 ( 0.5, 0.5, 0.5, 1 );            \n"
        "}                                                   \n";
 
    // Load the shaders and get a linked program object
@@ -200,26 +200,26 @@ void BlitTextures ( ESContext *esContext )
    // Copy the output red buffer to lower left quadrant
    glReadBuffer ( GL_COLOR_ATTACHMENT0 );
    glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
-                       0, 0, esContext->width/2, esContext->height/2, 
+                       0, 0, esContext->width/1, esContext->height/1, 
                        GL_COLOR_BUFFER_BIT, GL_LINEAR );
 
-   // Copy the output green buffer to lower right quadrant
-   glReadBuffer ( GL_COLOR_ATTACHMENT1 );
-   glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
-                       esContext->width/2, 0, esContext->width, esContext->height/2, 
-                       GL_COLOR_BUFFER_BIT, GL_LINEAR );
+   // // Copy the output green buffer to lower right quadrant
+   // glReadBuffer ( GL_COLOR_ATTACHMENT1 );
+   // glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
+   //                     esContext->width/2, 0, esContext->width, esContext->height/2, 
+   //                     GL_COLOR_BUFFER_BIT, GL_LINEAR );
 
-   // Copy the output blue buffer to upper left quadrant
-   glReadBuffer ( GL_COLOR_ATTACHMENT2 );
-   glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
-                       0, esContext->height/2, esContext->width/2, esContext->height, 
-                       GL_COLOR_BUFFER_BIT, GL_LINEAR );
+   // // Copy the output blue buffer to upper left quadrant
+   // glReadBuffer ( GL_COLOR_ATTACHMENT2 );
+   // glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
+   //                     0, esContext->height/2, esContext->width/2, esContext->height, 
+   //                     GL_COLOR_BUFFER_BIT, GL_LINEAR );
 
-   // Copy the output gray buffer to upper right quadrant
-   glReadBuffer ( GL_COLOR_ATTACHMENT3 );
-   glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
-                       esContext->width/2, esContext->height/2, esContext->width, esContext->height, 
-                       GL_COLOR_BUFFER_BIT, GL_LINEAR );
+   // // Copy the output gray buffer to upper right quadrant
+   // glReadBuffer ( GL_COLOR_ATTACHMENT3 );
+   // glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
+   //                     esContext->width/2, esContext->height/2, esContext->width, esContext->height, 
+   //                     GL_COLOR_BUFFER_BIT, GL_LINEAR );
 }
 
 ///
