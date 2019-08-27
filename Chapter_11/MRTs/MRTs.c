@@ -229,7 +229,7 @@ void writeImage(int w, int h, GLubyte* ptr){
     {
         for(int j=0; j<h; j++)
         {
-            int x=i; int y=(h-1)-j;
+            int x=i; int y= j;
 
             int r = ptr[(x+y*w)*4+0];
             int g = ptr[(x+y*w)*4+1];
@@ -273,6 +273,19 @@ void writeImage(int w, int h, GLubyte* ptr){
     fclose(f);
 }
 
+
+void saveFrameBuffer(ESContext *esContext) {
+    UserData *userData = esContext->userData;
+
+    // set the fbo for reading
+    glBindFramebuffer ( GL_READ_FRAMEBUFFER, userData->fbo );
+
+    GLubyte* pixels = (GLubyte*) malloc(userData->textureWidth * userData->textureHeight * sizeof(GLubyte) * 4);
+    glReadPixels(0, 0, userData->textureWidth, userData->textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    writeImage(userData->textureWidth, userData->textureHeight, pixels);
+    free(pixels);
+}
 ///
 // Copy MRT output buffers to screen
 //
@@ -286,15 +299,15 @@ void BlitTextures ( ESContext *esContext )
    GLubyte* pixels = (GLubyte*) malloc(userData->textureWidth * userData->textureHeight * sizeof(GLubyte) * 4);
    glReadPixels(0, 0, userData->textureWidth, userData->textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-    writeImage(userData->textureWidth, userData->textureHeight, pixels);
+   writeImage(userData->textureWidth, userData->textureHeight, pixels);
+   free(pixels);
 
 
-    free(pixels);
-   // Copy the output red buffer to lower left quadrant
-   glReadBuffer ( GL_COLOR_ATTACHMENT0 );
-   glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
-                       0, 0, esContext->width/1, esContext->height/1,
-                       GL_COLOR_BUFFER_BIT, GL_LINEAR );
+//   // Copy the output red buffer to lower left quadrant
+//   glReadBuffer ( GL_COLOR_ATTACHMENT0 );
+//   glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
+//                       0, 0, esContext->width/1, esContext->height/1,
+//                       GL_COLOR_BUFFER_BIT, GL_LINEAR );
 
    // // Copy the output green buffer to lower right quadrant
    // glReadBuffer ( GL_COLOR_ATTACHMENT1 );
@@ -338,12 +351,15 @@ void Draw ( ESContext *esContext )
    glDrawBuffers ( 4, attachments );
    DrawGeometry ( esContext );
 
-   // SECOND: copy the four output buffers into four window quadrants
-   // with framebuffer blits
+   // save to image
+   saveFrameBuffer( esContext );
 
-   // Restore the default framebuffer
-   glBindFramebuffer ( GL_DRAW_FRAMEBUFFER, defaultFramebuffer );
-   BlitTextures ( esContext );
+//   // SECOND: copy the four output buffers into four window quadrants
+//   // with framebuffer blits
+//
+//   // Restore the default framebuffer
+//   glBindFramebuffer ( GL_DRAW_FRAMEBUFFER, defaultFramebuffer );
+//   BlitTextures ( esContext );
 }
 
 
@@ -355,7 +371,7 @@ void ShutDown ( ESContext *esContext )
    UserData *userData = esContext->userData;
 
    // Delete texture objects
-   glDeleteTextures ( 4, userData->colorTexId );
+   glDeleteTextures ( 1, userData->colorTexId );
 
    // Delete fbo
    glDeleteFramebuffers ( 1, &userData->fbo );
