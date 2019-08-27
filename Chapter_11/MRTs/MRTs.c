@@ -196,6 +196,11 @@ void BlitTextures ( ESContext *esContext )
 
    // set the fbo for reading
    glBindFramebuffer ( GL_READ_FRAMEBUFFER, userData->fbo );
+
+   GLubyte* pixels = (GLubyte*) malloc(userData->textureWidth * userData->textureHeight * sizeof(GLubyte) * 4);
+   glReadPixels(0, 0, userData->textureWidth, userData->textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+
  
    // Copy the output red buffer to lower left quadrant
    glReadBuffer ( GL_COLOR_ATTACHMENT0 );
