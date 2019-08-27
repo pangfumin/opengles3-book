@@ -38,6 +38,7 @@
 //    using framebuffer blits.
 //
 #include <stdlib.h>
+#include <stdio.h>
 #include "esUtil.h"
 
 typedef struct
@@ -187,6 +188,64 @@ void DrawGeometry ( ESContext *esContext )
    glDrawElements ( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices );
 }
 
+
+void writeImage(int w, int h, GLubyte* ptr){
+    FILE *f;
+    unsigned char *img = NULL;
+
+    int filesize = 54 + 3*w*h;  //w is your image width, h is image height, both int
+
+    img = (unsigned char *)malloc(3*w*h);
+    memset(img,0,3*w*h);
+
+    for(int i=0; i<w; i++)
+    {
+        for(int j=0; j<h; j++)
+        {
+            int x=i; int y=(h-1)-j;
+
+            int r = ptr[(x+y*w)*4+0];
+            int g = ptr[(x+y*w)*4+1];
+            int b = ptr[(x+y*w)*4+2];
+//
+            // bmp is bgr
+            img[(x+y*w)*3+2] = (unsigned char)(r);
+            img[(x+y*w)*3+1] = (unsigned char)(g);
+            img[(x+y*w)*3+0] = (unsigned char)(b);
+        }
+    }
+
+    unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
+    unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
+    unsigned char bmppad[3] = {0,0,0};
+
+    bmpfileheader[ 2] = (unsigned char)(filesize    );
+    bmpfileheader[ 3] = (unsigned char)(filesize>> 8);
+    bmpfileheader[ 4] = (unsigned char)(filesize>>16);
+    bmpfileheader[ 5] = (unsigned char)(filesize>>24);
+
+    bmpinfoheader[ 4] = (unsigned char)(       w    );
+    bmpinfoheader[ 5] = (unsigned char)(       w>> 8);
+    bmpinfoheader[ 6] = (unsigned char)(       w>>16);
+    bmpinfoheader[ 7] = (unsigned char)(       w>>24);
+    bmpinfoheader[ 8] = (unsigned char)(       h    );
+    bmpinfoheader[ 9] = (unsigned char)(       h>> 8);
+    bmpinfoheader[10] = (unsigned char)(       h>>16);
+    bmpinfoheader[11] = (unsigned char)(       h>>24);
+
+    f = fopen("/home/pang/img.bmp","wb");
+    fwrite(bmpfileheader,1,14,f);
+    fwrite(bmpinfoheader,1,40,f);
+    for(int i=0; i<h; i++)
+    {
+        fwrite(img+(w*(h-i-1)*3),3,w,f);
+        fwrite(bmppad,1,(4-(w*3)%4)%4,f);
+    }
+
+    free(img);
+    fclose(f);
+}
+
 ///
 // Copy MRT output buffers to screen
 //
@@ -200,12 +259,14 @@ void BlitTextures ( ESContext *esContext )
    GLubyte* pixels = (GLubyte*) malloc(userData->textureWidth * userData->textureHeight * sizeof(GLubyte) * 4);
    glReadPixels(0, 0, userData->textureWidth, userData->textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
+    writeImage(userData->textureWidth, userData->textureHeight, pixels);
 
- 
+
+    free(pixels);
    // Copy the output red buffer to lower left quadrant
    glReadBuffer ( GL_COLOR_ATTACHMENT0 );
    glBlitFramebuffer ( 0, 0, userData->textureWidth, userData->textureHeight,
-                       0, 0, esContext->width/1, esContext->height/1, 
+                       0, 0, esContext->width/1, esContext->height/1,
                        GL_COLOR_BUFFER_BIT, GL_LINEAR );
 
    // // Copy the output green buffer to lower right quadrant
@@ -257,6 +318,7 @@ void Draw ( ESContext *esContext )
    glBindFramebuffer ( GL_DRAW_FRAMEBUFFER, defaultFramebuffer );
    BlitTextures ( esContext );
 }
+
 
 ///
 // Cleanup
