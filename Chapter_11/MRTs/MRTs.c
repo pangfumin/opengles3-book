@@ -381,6 +381,46 @@ void ShutDown ( ESContext *esContext )
 }
 
 
+void offScreenRenderContextCreate(ESContext *esContext) {
+    esContext->eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    EGLint majorVersion;
+    EGLint minorVersion;
+    eglInitialize(esContext->eglDisplay, &majorVersion, &minorVersion);
+    EGLint numConfigs;
+    static const EGLint configAttribs[] = {
+            EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT_KHR,
+            EGL_RED_SIZE, 8,
+            EGL_GREEN_SIZE, 8,
+            EGL_BLUE_SIZE, 8,
+            EGL_ALPHA_SIZE, 8,
+            EGL_NONE
+    };
+    EGLConfig surfaceConfig;
+    eglChooseConfig(esContext->eglDisplay, configAttribs, &surfaceConfig, 1, &numConfigs);
+    static const EGLint contextAttribs[] = {
+            EGL_CONTEXT_CLIENT_VERSION, 3,
+            EGL_NONE
+    };
+    esContext->eglContext = eglCreateContext(esContext->eglDisplay, surfaceConfig, NULL, contextAttribs);
+    static const EGLint surfaceAttribs[] = {
+            EGL_WIDTH, 1,
+            EGL_HEIGHT, 1,
+            EGL_NONE
+    };
+    esContext->eglSurface = eglCreatePbufferSurface(esContext->eglDisplay, surfaceConfig, surfaceAttribs);
+    eglMakeCurrent(esContext->eglDisplay, esContext->eglSurface, esContext->eglSurface, esContext->eglContext);
+}
+
+void offScreenRenderContextTearDown(ESContext *esContext) {
+    eglMakeCurrent(esContext->eglDisplay, EGL_NO_SURFACE , EGL_NO_SURFACE , EGL_NO_CONTEXT);
+    eglDestroyContext(esContext->eglDisplay, esContext->eglContext);
+    eglDestroySurface(esContext->eglDisplay, esContext->eglSurface);
+    eglTerminate(esContext->eglDisplay);
+    esContext->eglDisplay = EGL_NO_DISPLAY;
+
+}
+
 int main ( int argc, char *argv[] )
 {
     ESContext esContext;
@@ -388,6 +428,7 @@ int main ( int argc, char *argv[] )
 
     esCreateWindow ( &esContext, "Multiple Render Targets", 400, 400, ES_WINDOW_RGB | ES_WINDOW_ALPHA );
 
+    offScreenRenderContextCreate(&esContext);
     if ( !Init ( &esContext ) )
     {
         return GL_FALSE;
@@ -401,6 +442,8 @@ int main ( int argc, char *argv[] )
    if ( esContext.userData != NULL )
 	   free ( esContext.userData );
 
+
+    offScreenRenderContextTearDown(&esContext);
 
    return 0;
 }
