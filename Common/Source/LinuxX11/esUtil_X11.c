@@ -191,23 +191,23 @@ extern int esMain( ESContext *esContext );
 //
 //      Main entrypoint for application
 //
-int main ( int argc, char *argv[] )
-{
-   ESContext esContext;
-   
-   memset ( &esContext, 0, sizeof( esContext ) );
-
-
-   if ( esMain ( &esContext ) != GL_TRUE )
-      return 1;   
- 
-   WinLoop ( &esContext );
-
-   if ( esContext.shutdownFunc != NULL )
-	   esContext.shutdownFunc ( &esContext );
-
-   if ( esContext.userData != NULL )
-	   free ( esContext.userData );
-
-   return 0;
-}
+//int main ( int argc, char *argv[] )
+//{
+//   ESContext esContext;
+//
+//   memset ( &esContext, 0, sizeof( esContext ) );
+//
+//
+//   if ( esMain ( &esContext ) != GL_TRUE )
+//      return 1;
+//
+//   WinLoop ( &esContext );
+//
+//   if ( esContext.shutdownFunc != NULL )
+//	   esContext.shutdownFunc ( &esContext );
+//
+//   if ( esContext.userData != NULL )
+//	   free ( esContext.userData );
+//
+//   return 0;
+//}

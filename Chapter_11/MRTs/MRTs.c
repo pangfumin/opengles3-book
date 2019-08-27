@@ -380,19 +380,27 @@ void ShutDown ( ESContext *esContext )
    glDeleteProgram ( userData->programObject );
 }
 
-int esMain ( ESContext *esContext )
+
+int main ( int argc, char *argv[] )
 {
-   esContext->userData = malloc ( sizeof ( UserData ) );
+   ESContext esContext;
+    esContext.userData = malloc ( sizeof ( UserData ) );
 
-   esCreateWindow ( esContext, "Multiple Render Targets", 400, 400, ES_WINDOW_RGB | ES_WINDOW_ALPHA );
+    esCreateWindow ( &esContext, "Multiple Render Targets", 400, 400, ES_WINDOW_RGB | ES_WINDOW_ALPHA );
 
-   if ( !Init ( esContext ) )
-   {
-      return GL_FALSE;
-   }
+    if ( !Init ( &esContext ) )
+    {
+        return GL_FALSE;
+    }
 
-   esRegisterDrawFunc ( esContext, Draw );
-   esRegisterShutdownFunc ( esContext, ShutDown );
+    Draw(&esContext);
+    eglSwapBuffers(esContext.eglDisplay, esContext.eglSurface);
 
-   return GL_TRUE;
+
+    ShutDown( &esContext );
+
+   if ( esContext.userData != NULL )
+	   free ( esContext.userData );
+
+   return 0;
 }
