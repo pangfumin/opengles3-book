@@ -129,23 +129,13 @@ int Init ( ESContext *esContext )
    char fShaderStr[] =
        "#version 300 es                                     \n"
        "precision mediump float;                            \n"
-       "layout(location = 0) out vec4 fragData0;            \n"
-      //  "layout(location = 1) out vec4 fragData1;            \n"
-      //  "layout(location = 2) out vec4 fragData2;            \n"
-      //  "layout(location = 3) out vec4 fragData3;            \n"
+
+       "out vec4 fragData;                                  \n"
        "void main()                                         \n"
        "{                                                   \n"
        "  // first buffer will contain red color            \n"
-       "  fragData0 = vec4 ( 1, 0, 0, 1 );                  \n"
+       "  fragData = vec4 ( 0, 0, 1, 1 );                  \n"
        "                                                    \n"
-      //  "  // second buffer will contain green color         \n"
-      //  "  fragData1 = vec4 ( 0, 1, 0, 1 );                  \n"
-      //  "                                                    \n"
-      //  "  // third buffer will contain blue color           \n"
-      //  "  fragData2 = vec4 ( 0, 0, 1, 1 );                  \n"
-      //  "                                                    \n"
-      //  "  // fourth buffer will contain gray color          \n"            
-      //  "  fragData3 = vec4 ( 0.5, 0.5, 0.5, 1 );            \n"
        "}                                                   \n";
 
    // Load the shaders and get a linked program object
@@ -163,10 +153,10 @@ int Init ( ESContext *esContext )
 void DrawGeometry ( ESContext *esContext )
 {
    UserData *userData = esContext->userData;
-   GLfloat vVertices[] = { -1.0f,  1.0f, 0.0f,
-                           -1.0f, -1.0f, 0.0f,
-                            1.0f, -1.0f, 0.0f,
-                            1.0f,  1.0f, 0.0f,
+   GLfloat vVertices[] = { -0.50f,  0.50f, 0.0f,
+                           -0.50f, -0.50f, 0.0f,
+                            0.50f, -0.50f, 0.0f,
+                            0.50f,  0.50f, 0.0f,
                          };
    GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
 
@@ -185,7 +175,8 @@ void DrawGeometry ( ESContext *esContext )
    glEnableVertexAttribArray ( 0 );
 
    // Draw a quad
-   glDrawElements ( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices );
+   //glDrawElements ( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices );
+    glDrawArrays(GL_POINTS, 0, 4); //
 }
 
 
