@@ -335,12 +335,12 @@ void Draw ( ESContext *esContext )
 {
    UserData *userData = esContext->userData;
    GLint defaultFramebuffer = 0;
-   const GLenum attachments[4] = 
+   const GLenum attachments[1] =
    { 
-      GL_COLOR_ATTACHMENT0,
-      GL_COLOR_ATTACHMENT1,
-      GL_COLOR_ATTACHMENT2,
-      GL_COLOR_ATTACHMENT3 
+      GL_COLOR_ATTACHMENT0
+//      GL_COLOR_ATTACHMENT1,
+//      GL_COLOR_ATTACHMENT2,
+//      GL_COLOR_ATTACHMENT3
    };
    
    glGetIntegerv ( GL_FRAMEBUFFER_BINDING, &defaultFramebuffer );
@@ -348,7 +348,7 @@ void Draw ( ESContext *esContext )
    // FIRST: use MRTs to output four colors to four buffers
    glBindFramebuffer ( GL_FRAMEBUFFER, userData->fbo );
    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-   glDrawBuffers ( 4, attachments );
+   glDrawBuffers ( 1, attachments );
    DrawGeometry ( esContext );
 
    // save to image
@@ -383,7 +383,7 @@ void ShutDown ( ESContext *esContext )
 
 int main ( int argc, char *argv[] )
 {
-   ESContext esContext;
+    ESContext esContext;
     esContext.userData = malloc ( sizeof ( UserData ) );
 
     esCreateWindow ( &esContext, "Multiple Render Targets", 400, 400, ES_WINDOW_RGB | ES_WINDOW_ALPHA );
@@ -396,11 +396,11 @@ int main ( int argc, char *argv[] )
     Draw(&esContext);
     eglSwapBuffers(esContext.eglDisplay, esContext.eglSurface);
 
-
     ShutDown( &esContext );
 
    if ( esContext.userData != NULL )
 	   free ( esContext.userData );
+
 
    return 0;
 }
