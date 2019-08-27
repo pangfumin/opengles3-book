@@ -133,7 +133,6 @@ int Init ( ESContext *esContext )
        "out vec4 fragData;                                  \n"
        "void main()                                         \n"
        "{                                                   \n"
-       "  // first buffer will contain red color            \n"
        "  fragData = vec4 ( 0, 0, 1, 1 );                  \n"
        "                                                    \n"
        "}                                                   \n";
@@ -158,7 +157,36 @@ void DrawGeometry ( ESContext *esContext )
                             0.50f, -0.50f, 0.0f,
                             0.50f,  0.50f, 0.0f,
                          };
+
 //   GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
+
+    GLfloat pixels[esContext->width*esContext->height*3];
+    GLfloat colors[esContext->width*esContext->height*3];
+    for (uint32_t i = 0; i < esContext->height ; ++i) {
+        for (uint32_t j = 0; j < esContext->width ; ++j) {
+//            vec4 v;
+//            v.x = 2.0f * (float(j + 0.5f) / float(width)) - 1.0f;
+//            v.y = 2.0f * (float(i + 0.5f) / float(height)) - 1.0f;
+//            v.z = 0;
+//            v.w = 0;
+//            pixels.push_back(v);
+//
+//            v.x = (float)j / width * 255;
+//            v.y = (float)i / height * 255;
+//            v.z = 0;
+//            v.w = 0;
+//            colors.push_back(v);
+            pixels[3*(i * esContext->width + j) + 0] = 2.0f * (float)(j + 0.5f) / (esContext->width) - 1.0f;
+            pixels[3*(i * esContext->width + j) + 1] = 2.0f * (float)(i + 0.5f) / (esContext->height) - 1.0f;
+            pixels[3*(i * esContext->width + j) + 2] = 0;
+
+            colors[3*(i * esContext->width + j) + 0] = (float)j / esContext->width * 255;
+            colors[3*(i * esContext->width + j) + 1] = (float)i / esContext->height * 255;
+            colors[3*(i * esContext->width + j) + 2] = 0;
+        }
+    }
+
+
 
    // Set the viewport
    glViewport ( 0, 0, esContext->width, esContext->height );
@@ -171,12 +199,12 @@ void DrawGeometry ( ESContext *esContext )
 
    // Load the vertex position
    glVertexAttribPointer ( 0, 3, GL_FLOAT,
-                           GL_FALSE, 3 * sizeof ( GLfloat ), vVertices );
+                           GL_FALSE, 3 * sizeof ( GLfloat ), pixels );
    glEnableVertexAttribArray ( 0 );
 
    // Draw a quad
    //glDrawElements ( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices );
-    glDrawArrays(GL_POINTS, 0, 4); //
+    glDrawArrays(GL_POINTS, 0, esContext->width*esContext->height); //
 }
 
 
