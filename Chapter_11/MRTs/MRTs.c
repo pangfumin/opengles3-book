@@ -121,19 +121,23 @@ int Init ( ESContext *esContext )
    char vShaderStr[] =
       "#version 300 es                            \n"
       "layout(location = 0) in vec4 a_position;   \n"
+      "layout(location = 1) in vec4 a_color;   \n"
+      "out vec4 coords;   \n"
       "void main()                                \n"
       "{                                          \n"
       "   gl_Position = a_position;               \n"
+      "   coords = a_color;               \n"
       "}                                          \n";
 
    char fShaderStr[] =
        "#version 300 es                                     \n"
        "precision mediump float;                            \n"
 
+       "in vec4 coords;                                  \n"
        "out vec4 fragData;                                  \n"
        "void main()                                         \n"
        "{                                                   \n"
-       "  fragData = vec4 ( 0, 0, 1, 1 );                  \n"
+       "  fragData = coords;                  \n"
        "                                                    \n"
        "}                                                   \n";
 
@@ -180,8 +184,8 @@ void DrawGeometry ( ESContext *esContext )
             pixels[3*(i * esContext->width + j) + 1] = 2.0f * (float)(i + 0.5f) / (esContext->height) - 1.0f;
             pixels[3*(i * esContext->width + j) + 2] = 0;
 
-            colors[3*(i * esContext->width + j) + 0] = (float)j / esContext->width * 255;
-            colors[3*(i * esContext->width + j) + 1] = (float)i / esContext->height * 255;
+            colors[3*(i * esContext->width + j) + 0] =  (float)(j ) / (esContext->width);
+            colors[3*(i * esContext->width + j) + 1] =  (float)(i ) / (esContext->height);
             colors[3*(i * esContext->width + j) + 2] = 0;
         }
     }
@@ -200,7 +204,11 @@ void DrawGeometry ( ESContext *esContext )
    // Load the vertex position
    glVertexAttribPointer ( 0, 3, GL_FLOAT,
                            GL_FALSE, 3 * sizeof ( GLfloat ), pixels );
+   glVertexAttribPointer ( 1, 3, GL_FLOAT,
+                            GL_FALSE, 3 * sizeof ( GLfloat ), colors );
+
    glEnableVertexAttribArray ( 0 );
+   glEnableVertexAttribArray ( 1 );
 
    // Draw a quad
    //glDrawElements ( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices );
